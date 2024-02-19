@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/userModel';
 
 import { Error } from 'mongoose';
+import auth, {RequestWithUser} from "../auth";
 
 
 
@@ -54,27 +55,13 @@ usersRouter.post('/sessions', async (req, res, next) => {
 
 });
 
-usersRouter.get('/secret', (req, res, next) => {
+usersRouter.get('/secret', auth, async (req: RequestWithUser, res, next) => {
     try {
-        const headerValue = req.get('Authorization');
-
-        if(!headerValue) {
-            return res.status(401).send({error: 'No authorization header present'});
-        }
-
-        const [bearer, token] = headerValue.split(' ');
-
-        if (!token) {
-            return res.status(401).send({error: 'No token present'});
-        }
-
-        console.log(token);
-
-        return res.send({message: 'This is a secret message', username: 'Anonymous'});
+        return res.send({message: 'This is a secret message', username: req.user?.username});
     } catch (e) {
         next (e);
     }
-})
+});
 
 
 
